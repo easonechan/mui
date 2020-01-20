@@ -1,0 +1,295 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>MUI后台管理</title>
+        <script type="text/javascript" src="../scripts/jquery-3.3.1.js"></script>
+        <script type="text/javascript" src="../scripts/mui.js"></script> 
+        <link href="../assets/mui.css" rel="stylesheet" />
+        <link href="../assets/admin.css" rel="stylesheet" />
+        <script type="text/javascript">
+            $(function () {
+    
+    
+                //树型菜单处理
+                var tree = $('#MUI-system-side-menu');
+                tree.find('li>a').click(function (i) {
+    
+                    //判断是处于激活状态，如果不是隐藏子项。
+                    var item = $(this).parent();
+    
+                    var isSelected = item.is('.mui-nav-itemed')
+                    if (isSelected) {
+                        item.removeClass('mui-nav-itemed');
+                        return;
+                    };
+    
+                    //查找激活的菜单，变成隐藏状态。
+                    tree.children('li.mui-nav-itemed').removeClass('mui-nav-itemed');
+                    item.addClass('mui-nav-itemed');
+    
+                })
+    
+                var lastTreeItem;
+                tree.find('li>dl>dd>a').each(function () {
+                    let href = $(this).attr('href');
+                    $(this).removeAttr('href');
+                    $(this).attr('mui-href', href);
+    
+                    $(this).click(function () {
+                        if (lastTreeItem != null) { lastTreeItem.removeClass('mui-this'); }
+                        lastTreeItem = $(this).parent();
+                        $(this).parent().addClass('mui-this');
+                        document.getElementById('rightFrame').contentWindow.location.href = $(this).attr('mui-href');
+                    })
+                }) 
+    
+                //用户下拉。
+                this.dropUserCenter = function (ishover) {
+                    var drop = $('#user_dropdown');
+                    var dropbox = drop.children().eq(1);
+                    if (ishover) dropbox.show();
+                    else {
+    
+                        dropbox.hide();
+                    }
+                } 
+                $('body').muiRender().setEvent(this);
+            })
+            /**
+             * 刷新当前页。
+             * */
+            function refreshPage() {
+                document.getElementById('rightFrame').contentWindow.location.reload(true);
+            }
+     
+        </script>
+    </head>
+    <body>
+    <div id="_app">
+        <div class="mui-layout mui-layout-admin">
+            <div class="mui-header">
+                <!-- 头部区域 -->
+                <ul class="mui-nav mui-layout-left">
+                    <li style="display:none;" class="mui-nav-item layadmin-flexible" lay-unselect="">
+                        <a href="javascript:;" layadmin-event="flexible" title="侧边伸缩">
+                            <i class="mui-icon mui-icon-shrink-right" id="LAY_app_flexible"></i>
+                        </a>
+                    </li>
+                    <li style="display:none;" class="mui-nav-item mui-hide-xs" lay-unselect="">
+                        <a href="" target="_blank" title="前台">
+                            <i class="mui-icon mui-icon-website"></i>
+                        </a>
+                    </li>
+                    <li class="mui-nav-item" lay-unselect="">
+                        <a href="javascript:;" onclick="refreshPage()" layadmin-event="refresh" title="刷新">
+                            <i class="mui-icon mui-icon-refresh-3"></i>
+                        </a>
+                    </li>
+                    <li style="display:none;" class="mui-nav-item mui-hide-xs" lay-unselect="">
+                        <input type="text" placeholder="搜索..." autocomplete="off" class="mui-input mui-input-search" layadmin-event="serach" lay-action="template/search.html?keywords=">
+                    </li>
+                    <span class="mui-nav-bar" style="width: 0px; left: 30px; opacity: 0; top: 48px;"></span>
+                </ul>
+                <ul class="mui-nav mui-layout-right" lay-filter="layadmin-layout-right">
+
+                    <li class="mui-nav-item" lay-unselect="">
+                        <a lay-href="app/message/index.html" layadmin-event="message" lay-text="消息中心">
+                            <i class="mui-icon mui-icon-notice"></i>
+
+                            <!-- 如果有新消息，则显示小圆点 -->
+                            <span class="mui-badge-dot"></span>
+                        </a>
+                    </li>
+                    <li class="mui-nav-item mui-hide-xs">
+                        <a href="javascript:;">
+                            <i class="mui-icon mui-icon-theme"></i>
+                        </a>
+                    </li>
+                    <li class="mui-nav-item mui-hide-xs">
+                        <a href="javascript:;">
+                            <i class="mui-icon mui-icon-note"></i>
+                        </a>
+                    </li>
+                    <li class="mui-nav-item mui-hide-xs">
+                        <a href="javascript:;">
+                            <i class="mui-icon mui-icon-screen-full"></i>
+                        </a>
+                    </li>
+                    <li class="mui-nav-item" mui-event="dropUserCenter()" mui-event-type="hover" lay-unselect="" id="user_dropdown">
+                        <a href="javascript:;">
+                            <cite>admin</cite>
+                            <span class="mui-nav-more"></span>
+                        </a>
+                        <dl class="mui-nav-child">
+                            <dd><a href="AdminAccount/MyAccountInfo">基本资料</a></dd>
+                            <hr>
+                            <dd mui-event="" mui-event-type="click" style="text-align: center;"><a href="/AdminAccount/LoginOut" target="_parent">退出</a></dd>
+                        </dl>
+                    </li>
+
+                    <li class="mui-nav-item mui-hide-xs" lay-unselect="">
+                        <a href="javascript:;" layadmin-event="about"><i class="mui-icon mui-icon-more-vertical"></i></a>
+                    </li>
+                    <li class="mui-nav-item mui-show-xs-inline-block mui-hide-sm" lay-unselect="">
+                        <a href="javascript:;" layadmin-event="more"><i class="mui-icon mui-icon-more-vertical"></i></a>
+                    </li>
+                    <span class="mui-nav-bar" style="left: 292px; top: 48px; width: 0px; opacity: 0;"></span>
+                </ul>
+            </div>
+
+            <!-- 侧边菜单 -->
+
+            <div class="mui-side mui-side-menu">
+                <div class="mui-side-scroll">
+                    <div class="mui-logo" lay-href="home/console.html">
+                        <span>MUI管理后台</span>
+                    </div>
+
+                    <ul class="mui-nav mui-nav-tree" lay-shrink="all" id="MUI-system-side-menu" lay-filter="muiadmin-system-side-menu">
+                                <li data-name="home" class="mui-nav-item ">
+                                    <a href="javascript:;">
+                                        <i class="mui-icon mui-icon-component"></i>
+                                        <cite>会员管理</cite>
+                                        <span class="mui-nav-more"></span>
+                                    </a>
+                                    <dl class="mui-nav-child">
+
+                                            <dd data-name="console">
+                                                <a href="/User/Index" target="rightFrame">会员管理列表</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/User/UserMemberBuyTypeList" target="rightFrame">会员包月类型列表</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/User/UserGroups" target="rightFrame">会员组别</a>
+                                            </dd>
+
+                                    </dl>
+                                </li>
+                                <li data-name="home" class="mui-nav-item ">
+                                    <a href="javascript:;">
+                                        <i class="mui-icon mui-icon-component"></i>
+                                        <cite>管理员管理</cite>
+                                        <span class="mui-nav-more"></span>
+                                    </a>
+                                    <dl class="mui-nav-child">
+
+                                            <dd data-name="console">
+                                                <a href="/AdminAccount/Index" target="rightFrame">管理员列表</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/AdminAccount/AdminGroupIndex" target="rightFrame">管理组列表</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/AdminMenu/Index" target="rightFrame">菜单管理列表</a>
+                                            </dd>
+
+                                    </dl>
+                                </li>
+                                <li data-name="home" class="mui-nav-item ">
+                                    <a href="javascript:;">
+                                        <i class="mui-icon mui-icon-component"></i>
+                                        <cite>应用管理</cite>
+                                        <span class="mui-nav-more"></span>
+                                    </a>
+                                    <dl class="mui-nav-child">
+
+                                            <dd data-name="console">
+                                                <a href="/Apps/appedit.aspx" target="rightFrame">添加应用</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/Apps/List" target="rightFrame">应用列表</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/down" target="rightFrame">下架应用</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/category" target="rightFrame">分类管理</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/category_edit.aspx" target="rightFrame">添加分类</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/Materials/Index" target="rightFrame">应用素材</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/areas" target="rightFrame">区域管理</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/systems" target="rightFrame">系统管理</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/platforms" target="rightFrame">渠道管理</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/packlist" target="rightFrame">渠道活动包管理</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/packdown" target="rightFrame">渠道活动包下架管理</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/package_edit.aspx" target="rightFrame">添加渠道活动包</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/platformcategory" target="rightFrame">渠道分类管理</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/platformTag" target="rightFrame">渠道标签管理</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/RelationHardwares" target="rightFrame">渠道硬件关联</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/Relations" target="rightFrame">版本渠道关联</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/Externals" target="rightFrame">外置设备管理</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/specials" target="rightFrame">特性管理</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/actions/List" target="rightFrame">动作管理</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/actionedit.aspx" target="rightFrame">添加动作</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/actions/categorys" target="rightFrame">动作分类</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/actions/specials" target="rightFrame">动作属性</a>
+                                            </dd>
+                                            <dd data-name="console">
+                                                <a href="/apps/ages" target="rightFrame">年龄分级管理</a>
+                                            </dd>
+
+                                    </dl>
+                                </li>                               
+
+
+                        <span class="mui-nav-bar" style="top: 140px; height: 0px; opacity: 0;"></span>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 页面标签 -->
+            <div class="muiadmin-pagetabs" id="MUI_app_tabs">
+
+            </div>
+
+
+            <!-- 主体内容 -->
+            <div class="mui-body" id="LAY_app_body">
+                <div class="muiadmin-tabsbody-item mui-show">
+                    <iframe id="rightFrame" name="rightFrame" src="/AdminAccount/AdminHome" frameborder="0" class="muiadmin-iframe"></iframe>
+                </div>
+            </div>
+
+            <!-- 辅助元素，一般用于移动设备下遮罩 -->
+            <div class="layadmin-body-shade" layadmin-event="shade"></div>
+        </div>
+    </div>
+</body>
+</html>
