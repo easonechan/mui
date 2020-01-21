@@ -1,8 +1,19 @@
 (function ($) {
+
+    //默认参数。
+    var defaluts = {
+       
+    };
+
     $.fn.extend({
         //转换ui
-        "muiRender": function () {
+        "muiRender": function (options) {
+
+            var opts = $.extend({}, defaluts, options);
+
             checkboxRender(this.find(':checkbox'));
+            breadcrumbRender(this);
+            menuRender(this);
             inputTxtRender(this);
             selectRender(this);
             tableRender(this);
@@ -53,7 +64,7 @@
     function tableRender(obj) {
         //渲染表格
         var tables = obj.find('table[mui-render="true"]');
-              
+
 
         //添加样式表div 外包。
         tables.addClass('mui-table')
@@ -61,7 +72,119 @@
             .wrap('<div class="mui-table-box"><div class="mui-table-main"></div></div>');
     }
 
-    function pagerRender(obj) { 
+    /**
+     * 渲染菜单。
+     * @param {any} obj 
+     */
+    function menuRender(obj) {
+
+        //树型菜单处理
+        var menus = obj.find('*[mui-render="true"][mui-type="menu"]'); 
+        menus.each(function(){ 
+            menuItemRender($(this));
+        })
+        
+       
+    }
+    function menuItemRender(menus){
+        var defaultHome=menus.attr('mui-data');    
+        
+        var home= JSON.parse(defaultHome);
+    
+
+        menus.find('li>a').click(function (i) {
+
+            //判断是处于激活状态，如果不是隐藏子项。
+            var item = $(this).parent();
+
+            var isSelected = item.is('.mui-nav-itemed')
+            if (isSelected) {
+                item.removeClass('mui-nav-itemed');
+                return;
+            };
+
+            //查找激活的菜单，变成隐藏状态。
+            menus.children('li.mui-nav-itemed').removeClass('mui-nav-itemed');
+            item.addClass('mui-nav-itemed');
+
+        })
+
+        var lastTreeItem;
+        menus.find('li>dl>dd>a').each(function () {
+            let href = $(this).attr('href');
+            $(this).removeAttr('href');
+            $(this).attr('mui-href', href);
+
+            $(this).click(function () {
+                if (lastTreeItem != null) { lastTreeItem.removeClass('mui-this'); }
+                lastTreeItem = $(this).parent();
+                $(this).parent().addClass('mui-this');
+                document.getElementById('rightFrame').contentWindow.location.href = $(this).attr('mui-href');
+                
+                //添加到面包屑
+                bind_menuItem($(this),home);
+                breadcrumbRender_html();
+
+            })
+        })
+    }
+
+    var breadcrumbs;
+    var breadcrumbData = new Array();//面包屑数据项。
+
+    /**
+     * 绑定菜单项到面包屑。 
+     */
+    function bind_menuItem(treeItem,home) {
+        breadcrumbData.splice(0, breadcrumbData.length);
+
+        var parentMenu = treeItem.parent().parent().siblings(':first');
+ 
+        if(home==null)
+            breadcrumbData.push({ label: '首页', href: '/', last: false });
+        else
+            breadcrumbData.push(home);
+        setBreadcrumbItem(parentMenu, false);
+        setBreadcrumbItem(treeItem, true);
+    }
+
+    /**
+     * 设置面包屑数据项。 
+     */
+    function setBreadcrumbItem(item, lastItem) {
+        let href = item.attr('mui-href') == undefined ? item.attr('href') : item.attr('mui-href');
+        breadcrumbData.push({ label: item.text(), href: href, last: lastItem });
+    }
+    /**
+     * 渲染面包屑。
+     */
+    function breadcrumbRender(obj) {
+        breadcrumbs = obj.find('*[mui-render="true"][mui-type="breadcrumb"]');
+        breadcrumbs.addClass('mui-breadcrumb');
+    }
+    /**
+     * 渲染面包屑。
+     */
+    function breadcrumbRender_html() {
+
+        breadcrumbs.empty();
+        breadcrumbData.forEach(element => {
+
+            var breadcrumbItem;
+            if (!element.last)
+                breadcrumbItem = $(`<span><a href="${element.href}" target="rightFrame" class="mui-breadcrumb-item-link">${element.label}</a> <span class="mui-breadcrumb-item-separator">/</span></span>`);
+            else
+                breadcrumbItem = $(`<span>${element.label} <span class="mui-breadcrumb-item-separator">/</span></span>`);
+
+            breadcrumbs.append(breadcrumbItem);
+        });
+    }
+
+    /**
+     * 渲染分页。
+     * @param {any} obj 
+     */
+    function pagerRender(obj) {
         var pagers = obj.find('div[mui-render="true"][mui-type="pager"]')
             .wrap('<div class="mui-table-page"><div class="mui-box mui-laypage mui-laypage-default"></div></div>');
     }
@@ -69,7 +192,7 @@
     const select_option_selected_class = 'mui-select-tips mui-this';
 
     /**
-     * 解析checkbox
+     * 渲染checkbox
      * @param {any} obj
      */
     function checkboxRender(obj) {
@@ -96,7 +219,7 @@
 
 
     /**
-     * 单选渲染。
+     * 渲染单选。
      * @param {any} obj
      */
     function radioRender(obj) {
@@ -142,14 +265,14 @@
      * @param {any} obj
      */
     function selectRender(obj) {
-        var selects = obj.find('select'); 
+        var selects = obj.find('select');
 
-        selects.each(function (i,item) {
-           
+        selects.each(function (i, item) {
+
 
             $(item).on('DOMNodeInserted', function () {
                 selectRender_item(item);
-            }) 
+            })
 
             selectRender_item(item);
         })
@@ -206,7 +329,7 @@
         placeEl.append(selectWrap);
         select.parent().append(placeEl);
 
-   
+
 
         placeInput.click(function () {
             selectWrap.stop();
@@ -221,7 +344,7 @@
         });
     }
     /**
-     * 解析文本输入
+     * 渲染文本输入
      * @param {any} obj
      */
     function inputTxtRender(obj) {
