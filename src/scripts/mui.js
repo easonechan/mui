@@ -2,7 +2,7 @@
 
     //默认参数。
     var defaluts = {
-       
+
     };
 
     $.fn.extend({
@@ -70,6 +70,18 @@
         tables.addClass('mui-table')
             .attr('cellspacing', '0').attr('cellpadding', '0').attr('border', '0')
             .wrap('<div class="mui-table-box"><div class="mui-table-main"></div></div>');
+
+        tables.each(function (i, item) {
+            if ($(this).find('tbody>tr').length == 0) {
+
+                //添加空白数据提示
+                var msg = $(this).attr('mui-msg');
+                if (msg == null) msg = '没有数据。';
+                var tdcount = $(this).find('thead>tr>th').length;
+                var newRow = $('<tr><td colspan="' + tdcount + '">' + msg + '</td></tr>');
+                $(this).children('tbody').append(newRow);
+            }
+        });
     }
 
     /**
@@ -79,18 +91,18 @@
     function menuRender(obj) {
 
         //树型菜单处理
-        var menus = obj.find('*[mui-render="true"][mui-type="menu"]'); 
-        menus.each(function(){ 
+        var menus = obj.find('*[mui-render="true"][mui-type="menu"]');
+        menus.each(function () {
             menuItemRender($(this));
         })
-        
-       
+
+
     }
-    function menuItemRender(menus){
-        var defaultHome=menus.attr('mui-data');    
-        
-        var home= JSON.parse(defaultHome);
-    
+    function menuItemRender(menus) {
+        var defaultHome = menus.attr('mui-data');
+
+        var home = JSON.parse(defaultHome);
+
 
         menus.find('li>a').click(function (i) {
 
@@ -120,9 +132,9 @@
                 lastTreeItem = $(this).parent();
                 $(this).parent().addClass('mui-this');
                 document.getElementById('rightFrame').contentWindow.location.href = $(this).attr('mui-href');
-                
+
                 //添加到面包屑
-                bind_menuItem($(this),home);
+                bind_menuItem($(this), home);
                 breadcrumbRender_html();
 
             })
@@ -135,12 +147,12 @@
     /**
      * 绑定菜单项到面包屑。 
      */
-    function bind_menuItem(treeItem,home) {
+    function bind_menuItem(treeItem, home) {
         breadcrumbData.splice(0, breadcrumbData.length);
 
         var parentMenu = treeItem.parent().parent().siblings(':first');
- 
-        if(home==null)
+
+        if (home == null)
             breadcrumbData.push({ label: '首页', href: '/', last: false });
         else
             breadcrumbData.push(home);
