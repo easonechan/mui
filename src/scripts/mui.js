@@ -19,6 +19,7 @@
             tableRender(this);
             pagerRender(this);
             radioRender(this);
+            formitemRender(this);
             return this;
         },
         //设置自定义的事件。
@@ -61,6 +62,10 @@
 
     const mui_event = 'mui-event';
 
+    /**
+     * 渲染表格。
+     * @param {any} obj
+     */
     function tableRender(obj) {
         //渲染表格
         var tables = obj.find('table[mui-render="true"]');
@@ -81,8 +86,85 @@
                 var newRow = $('<tr><td colspan="' + tdcount + '">' + msg + '</td></tr>');
                 $(this).children('tbody').append(newRow);
             }
+
+            table_checkall(item);
         });
     }
+
+    /**
+     * 表格全选。
+     * */
+    function table_checkall(table) {
+        var checkalls = $(table).find('thead>tr>th[mui-behavior="checkall"]');
+        checkalls.each(function () {
+
+            //全选的索引 
+            let index = $(this).index();
+
+            let cb = $('<input type="checkbox" />');
+            $(this).append(cb);
+            cb.click([table,index],table_checkall_click);
+            checkbox_item_render(cb);
+          
+        })          
+    }
+    /**
+     * 表格全选事件。
+     * @param {any} event
+     */
+    function table_checkall_click(event) {
+        let isChecked = $(this).is(':checked');
+        var index = event.data[1];
+        var table = event.data[0];
+
+
+        $(table).find('tbody>tr').each(function () {
+            let row = $(this);
+            let td = row.children('td').get(index); 
+            $(td).children('div[mui-type="checkbox_place"]').click();
+        });          
+    }
+
+    /**
+     * 表单项渲染。 
+     * @param {any} obj
+     */
+    function formitemRender(obj) {
+        var forms = obj.find('*[mui-render="true"][mui-type="mui-form"]')
+            .addClass('mui-form');
+
+
+        forms.each(function (i, form) {
+
+            let isVertical = $(form).attr('vertical') == undefined ? false : eval($(form).attr('vertical'));//是否垂直布局
+            var labelWidth = $(form).attr('label-width');
+             
+             
+
+            var formItems = $(form).children();
+            //二级可能为其它元素（如form），再次获取赋值 。
+            if (!formItems.is('div')) formItems = formItems.children('div');
+            formItems.addClass('mui-form-item')
+
+            if (!isVertical) {
+                var inlines = formItems.children().addClass('mui-inline');
+                //console.log(inlines.length);
+                var labels = inlines.children('label').addClass('mui-form-label');
+                if (labelWidth != undefined) {
+                    labels.css('width', labelWidth);
+                }
+                inlines.children('div').addClass('mui-input-inline');
+            }
+            else {
+                formItems.children('label').addClass('col-md-2 control-label'); 
+            }
+        });
+
+
+
+    }
+
+
 
     /**
      * 渲染菜单。
@@ -210,22 +292,27 @@
     function checkboxRender(obj) {
         var cbxs = obj.each(function () {
             var cb = $(this);
-            cb.hide();
+            checkbox_item_render(cb);
+        })
+    }
+    function checkbox_item_render(cb) {
+       
+        cb.hide();
 
-            var title = cb.attr('title') == undefined ? '' : cb.attr('title');
-            var placeEl = $('<div class="mui-unselect mui-form-checkbox" skin="primary"><span>' + title + '</span><i class="mui-icon mui-icon-ok"></i></div>');
-            cb.parent().append(placeEl);
-            placeEl.click(function () {
+        var title = cb.attr('title') == undefined ? '' : cb.attr('title');
+        var placeEl = $('<div mui-type="checkbox_place" class="mui-unselect mui-form-checkbox" skin="primary"><span>' + title + '</span><i class="mui-icon mui-icon-ok"></i></div>');
+        cb.parent().append(placeEl);
+        placeEl.click(function () {
 
-                let isChecked = cb.is(':checked');
-                cb.prop("checked", !isChecked);
+            cb.click(); 
+            let isChecked = cb.is(':checked');
+            //cb.prop("checked", !isChecked);
 
-                if (isChecked) {
-                    placeEl.removeClass('mui-form-checked');
-                }
-                else
-                    placeEl.addClass('mui-form-checked');
-            })
+            if (!isChecked) {
+                placeEl.removeClass('mui-form-checked');
+            }
+            else
+                placeEl.addClass('mui-form-checked');
         })
     }
 
@@ -360,7 +447,7 @@
      * @param {any} obj
      */
     function inputTxtRender(obj) {
-        var inputs = obj.find(':input[type="text"],:input[type="number"]');
+        var inputs = obj.find(':input[type="text"],:input[type="number"],:input[type="password"]');
         inputs.addClass('mui-input');
     }
 })(jQuery);
